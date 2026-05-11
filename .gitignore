@@ -1,11 +1,11 @@
 # Secrets (NEVER commit these)
-.streamlit/
+#.streamlit/
 
 # venv
 dads5001_env/
 
 # environment file
-.env/
+#.env/
 
 # python
 
