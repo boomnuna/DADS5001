@@ -5,7 +5,7 @@
 dads5001_env/
 
 # environment file
-env/
+.env/
 
 # python
 
