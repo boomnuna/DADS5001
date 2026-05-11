@@ -1,0 +1,10 @@
+# Secrets (NEVER commit these)
+streamlit/secrets.toml
+
+# venv
+dads5001_env/
+
+# python
+
+# data
+
