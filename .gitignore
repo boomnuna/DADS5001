@@ -1,0 +1,17 @@
+# Secrets (NEVER commit these)
+.streamlit/
+
+# venv
+dads5001_env/
+__pycache__/
+.vscode/
+
+# environment file
+.env/
+
+# data
+Airbnb_Open_Data
+BACKUP/
+
+#
+
