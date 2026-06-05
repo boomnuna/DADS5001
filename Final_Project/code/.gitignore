@@ -1,0 +1,9 @@
+## environment 
+#.env/
+
+## secret.toml
+#.streamlit/
+
+
+
+
