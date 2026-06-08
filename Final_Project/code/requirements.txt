@@ -1,7 +1,0 @@
-pymongo
-pandas
-snowflake-connector-python
-snowflake-sqlalchemy
-streamlit
-plotly
-toml
