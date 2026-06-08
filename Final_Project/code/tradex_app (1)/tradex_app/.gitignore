@@ -1,5 +1,5 @@
 # Secrets — ห้าม commit!
-#.streamlit/secrets.toml
+.streamlit/secrets.toml
 
 # Python
 __pycache__/
@@ -8,7 +8,6 @@ __pycache__/
 .env
 venv/
 .venv/
-dads5001_env/
 
 # OS
 .DS_Store
