@@ -70,7 +70,7 @@ if run_btn or symbol:
     # Win rate
     trades   = df["Signal"].diff().fillna(0)
     n_trades = (trades != 0).sum()
-    wins     = (df.loc[strat_daily > 0, "Strategy"]).count()
+    wins = (strat_daily > 0).sum()
     win_rate = (wins / len(strat_daily) * 100) if len(strat_daily) > 0 else 0
 
     st.divider()

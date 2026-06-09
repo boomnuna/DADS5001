@@ -1,49 +1,78 @@
 """
 utils/ai_advisor.py
-Google Gemini AI — วิเคราะห์หุ้น, สรุปข่าว, แนะนำการลงทุน
+Groq AI (default for testing) — วิเคราะห์หุ้น, สรุปข่าว, แนะนำการลงทุน
+เปลี่ยนเป็น Gemini ได้ง่ายๆ โดยแก้ USE_GROQ = False
 """
 
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 from utils.db_mongo import save_ai_analysis, load_ai_analysis
+
+# ── เปลี่ยน True/False เพื่อสลับ AI ─────────────────────────────────────────
+USE_GROQ = True   # True = Groq | False = Gemini
+
+
+def _call_ai(prompt: str, max_tokens: int = 1500) -> str:
+    """เรียก AI ตาม USE_GROQ flag"""
+    if USE_GROQ:
+        model = _get_groq()
+        if model is None:
+            return "⚠️ กรุณาตั้งค่า GROQ_API_KEY ใน .streamlit/secrets.toml"
+        response = model.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=max_tokens,
+            temperature=0.4,
+        )
+        return response.choices[0].message.content
+    else:
+        import google.generativeai as genai
+        model = _get_gemini()
+        if model is None:
+            return "⚠️ กรุณาตั้งค่า GEMINI_API_KEY ใน .streamlit/secrets.toml"
+        response = model.generate_content(prompt)
+        return response.text
 
 
 @st.cache_resource
-def get_gemini_model():
-    """initialize Gemini model (cache_resource)"""
+def _get_groq():
+    """สร้าง Groq client (cache_resource)"""
     try:
+        api_key = st.secrets.get("GROQ_API_KEY", "")
+        if not api_key or api_key == "YOUR_GROQ_API_KEY_HERE":
+            return None
+        return Groq(api_key=api_key)
+    except Exception as e:
+        st.error(f"Groq init error: {e}")
+        return None
+
+
+@st.cache_resource
+def _get_gemini():
+    """สร้าง Gemini model (cache_resource)"""
+    try:
+        import google.generativeai as genai
         api_key = st.secrets.get("GEMINI_API_KEY", "")
         if not api_key or api_key == "YOUR_GEMINI_API_KEY_HERE":
             return None
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel(
-            model_name="gemini-1.5-flash",
-            generation_config={
-                "temperature": 0.4,
-                "max_output_tokens": 1500,
-            },
+        return genai.GenerativeModel(
+            model_name="gemini-2.0-flash",
+            generation_config={"temperature": 0.4, "max_output_tokens": 1500},
         )
-        return model
     except Exception as e:
         st.error(f"Gemini init error: {e}")
         return None
 
 
+# ── ฟังก์ชันเดิมทั้งหมด (ไม่ต้องแก้อะไร) ─────────────────────────────────────
+
 def analyze_stock_ai(symbol: str, stock_info: dict, news_list: list, technicals: dict) -> str:
-    """
-    วิเคราะห์หุ้นด้วย AI
-    ตรวจสอบ MongoDB cache ก่อน → ถ้าไม่มีค่อยเรียก Gemini
-    """
-    # ตรวจ cache ใน MongoDB
+    """วิเคราะห์หุ้นด้วย AI — ตรวจ MongoDB cache ก่อน"""
     cached = load_ai_analysis(symbol, max_age_hours=6)
     if cached:
         return cached.get("full_analysis", "")
 
-    model = get_gemini_model()
-    if model is None:
-        return "⚠️ กรุณาตั้งค่า GEMINI_API_KEY ใน .streamlit/secrets.toml"
-
-    # สรุปข่าวสั้น ๆ
     news_summary = "\n".join([
         f"- {n.get('content', {}).get('title', n.get('title', ''))}"
         for n in news_list[:5]
@@ -90,18 +119,13 @@ def analyze_stock_ai(symbol: str, stock_info: dict, news_list: list, technicals:
 
 **หมายเหตุ:** นี่คือการวิเคราะห์เพื่อการศึกษา ไม่ใช่คำแนะนำทางการเงิน
 """
-
     try:
-        response = model.generate_content(prompt)
-        result = response.text
-
-        # เก็บใน MongoDB cache
+        result = _call_ai(prompt, max_tokens=1500)
         save_ai_analysis(symbol, {
             "symbol": symbol,
             "full_analysis": result,
             "stock_info": stock_info,
         })
-
         return result
     except Exception as e:
         return f"❌ ไม่สามารถวิเคราะห์ได้: {e}"
@@ -109,9 +133,8 @@ def analyze_stock_ai(symbol: str, stock_info: dict, news_list: list, technicals:
 
 def summarize_news_ai(symbol: str, news_list: list) -> str:
     """สรุปข่าวและ Sentiment ด้วย AI"""
-    model = get_gemini_model()
-    if model is None or not news_list:
-        return "ไม่มีข่าวหรือยังไม่ได้ตั้งค่า API Key"
+    if not news_list:
+        return "ไม่มีข่าวล่าสุด"
 
     headlines = "\n".join([
         f"{i+1}. {n.get('content', {}).get('title', n.get('title', ''))}"
@@ -132,18 +155,13 @@ def summarize_news_ai(symbol: str, news_list: list) -> str:
 **ผลกระทบต่อราคา:** (1-2 ประโยค)
 """
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        return _call_ai(prompt, max_tokens=800)
     except Exception as e:
         return f"❌ Error: {e}"
 
 
 def predict_price_ai(symbol: str, current_price: float, technicals: dict) -> str:
     """พยากรณ์ราคาระยะสั้นด้วย AI"""
-    model = get_gemini_model()
-    if model is None:
-        return "ยังไม่ได้ตั้งค่า API Key"
-
     prompt = f"""
 ประเมินทิศทางราคาหุ้น {symbol} ในระยะสั้น (1-4 สัปดาห์) 
 ราคาปัจจุบัน: ${current_price}
@@ -162,7 +180,6 @@ Technicals:
 📝 เหตุผลหลัก: (2-3 ประโยค)
 """
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        return _call_ai(prompt, max_tokens=500)
     except Exception as e:
         return f"❌ Error: {e}"
