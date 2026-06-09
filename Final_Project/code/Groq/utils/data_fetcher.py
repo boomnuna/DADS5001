@@ -38,7 +38,10 @@ def get_price_history(symbol: str, period: str = "1y") -> pd.DataFrame:
     df = ticker.history(period=period)
     if df.empty:
         return pd.DataFrame()
-    df.index = df.index.tz_localize(None)
+    if df.index.tz is not None:
+        df.index = df.index.tz_convert(None)
+    else:
+        df.index = df.index.tz_localize(None)
     df = df[["Open", "High", "Low", "Close", "Volume"]]
     return df
 
@@ -170,7 +173,13 @@ def get_multi_prices(symbols: list, period: str = "1y") -> pd.DataFrame:
             frames[sym] = df["Close"]
     if not frames:
         return pd.DataFrame()
-    return pd.DataFrame(frames)
+    result = pd.DataFrame(frames)
+    # ✅ เพิ่มบรรทัดนี้
+    if result.index.tz is not None:
+        result.index = result.index.tz_convert(None)
+    else:
+        result.index = result.index.tz_localize(None)
+    return result
 
 
 def query_duckdb(sql: str) -> pd.DataFrame:

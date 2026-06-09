@@ -189,15 +189,17 @@ def analyze_news_impact(client, news_list: list, portfolio_symbols: list) -> lis
   {{
     "news_index": 1,
     "title": "ชื่อข่าวสั้น ไม่เกิน 80 ตัวอักษร",
+    "summary_th": "สรุปเนื้อหาข่าวนี้ภาษาไทย 2-3 ประโยค ให้เข้าใจง่าย ว่าข่าวพูดถึงอะไร เกิดอะไรขึ้น และสำคัญอย่างไร",
     "affected_tickers": ["AAPL"],
     "sentiment": "bullish",
     "impact_pct": 1.5,
     "confidence": 70,
-    "reason": "เหตุผลสั้นๆ 1-2 ประโยค"
+    "reason": "เหตุผลสั้นๆ 1-2 ประโยค ว่าทำไมข่าวนี้ถึงกระทบหุ้นเหล่านี้"
   }}
 ]
 
 กฎสำคัญ:
+- summary_th: สรุปเนื้อข่าวทุกข่าว ไม่ว่าจะกระทบพอร์ตหรือไม่ก็ตาม
 - affected_tickers: ใส่เฉพาะหุ้นจาก ({symbols_str}) ที่กระทบจริงๆ ถ้าไม่กระทบใส่ []
 - sentiment: "bullish", "bearish", หรือ "neutral" เท่านั้น
 - impact_pct: บวก=ขึ้น, ลบ=ลง ช่วง -10 ถึง 10
@@ -313,11 +315,12 @@ if "news_results" in st.session_state:
 
     for i, news in enumerate(news_list):
         r         = result_map.get(i + 1, {})
-        sentiment = r.get("sentiment", "neutral")
-        affected_t= r.get("affected_tickers", [])
-        impact_pct= r.get("impact_pct", 0)
-        confidence= r.get("confidence", 0)
-        reason    = r.get("reason", "")
+        sentiment  = r.get("sentiment", "neutral")
+        affected_t = r.get("affected_tickers", [])
+        impact_pct = r.get("impact_pct", 0)
+        confidence = r.get("confidence", 0)
+        reason     = r.get("reason", "")
+        summary_th = r.get("summary_th", "")
 
         filt = st.session_state.news_filter
         if filt == "bullish"  and sentiment != "bullish":  continue
@@ -350,7 +353,8 @@ if "news_results" in st.session_state:
                 {news['title']}
               </a>
               <div style="margin-top:8px;">{ticker_html}</div>
-              {f'<div style="color:#94a3b8;font-size:0.8rem;margin-top:8px;line-height:1.5;">{reason}</div>' if reason else ''}
+              {f'<div style="color:#cbd5e1;font-size:0.82rem;margin-top:10px;line-height:1.6;border-top:1px solid rgba(255,255,255,0.08);padding-top:8px;">📝 {summary_th}</div>' if summary_th else ''}
+              {f'<div style="color:#94a3b8;font-size:0.78rem;margin-top:8px;line-height:1.5;">💡 {reason}</div>' if reason else ''}
             </div>
             <div style="text-align:right;min-width:120px;">
               {badge}

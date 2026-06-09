@@ -108,12 +108,13 @@ if "portfolio" not in st.session_state:
     loaded = load_portfolio()
     if not loaded:
         # Mock data สำหรับ demo
+        # ✅ ใหม่ — ลบ market_value ออก ให้คำนวณจากราคาจริง
         loaded = [
-            {"symbol": "AAPL", "qty": 10, "avg_cost": 170.0, "market_value": 0},
-            {"symbol": "TSLA", "qty": 5,  "avg_cost": 200.0, "market_value": 0},
-            {"symbol": "NVDA", "qty": 8,  "avg_cost": 450.0, "market_value": 0},
-            {"symbol": "MSFT", "qty": 6,  "avg_cost": 330.0, "market_value": 0},
-            {"symbol": "AMZN", "qty": 4,  "avg_cost": 140.0, "market_value": 0},
+            {"symbol": "AAPL", "qty": 10, "avg_cost": 170.0},
+            {"symbol": "TSLA", "qty": 5,  "avg_cost": 200.0},
+            {"symbol": "NVDA", "qty": 8,  "avg_cost": 450.0},
+            {"symbol": "MSFT", "qty": 6,  "avg_cost": 330.0},
+            {"symbol": "AMZN", "qty": 4,  "avg_cost": 140.0},
         ]
     st.session_state.portfolio = loaded
 if "watchlist" not in st.session_state: st.session_state.watchlist = load_watchlist()
@@ -147,7 +148,11 @@ st.markdown("## 📊 ภาพรวมพอร์ตการลงทุน")
 
 # ─ Portfolio Summary ─
 holdings = st.session_state.portfolio
-total_value  = sum(h.get("market_value", 0) for h in holdings)
+# ✅ ใหม่ — คำนวณจากราคาปัจจุบันจริง
+total_value = sum(
+    get_current_price(h["symbol"])["price"] * h.get("qty", 0)
+    for h in holdings
+)
 total_cost   = sum(h.get("qty", 0) * h.get("avg_cost", 0) for h in holdings)
 total_pnl    = total_value - total_cost
 total_pnl_pct = (total_pnl / total_cost * 100) if total_cost > 0 else 0
@@ -170,13 +175,23 @@ with left:
     # ดึงจาก Snowflake ถ้ามี ไม่งั้น simulate จาก portfolio
     port_hist = load_portfolio_history(st.session_state.user_id, 90)
     if port_hist.empty and holdings:
-        # Simulate จาก price history ของหุ้นในพอร์ต
         syms = [h["symbol"] for h in holdings]
         multi = get_multi_prices(syms, "3mo")
         if not multi.empty:
-            weights = {h["symbol"]: h.get("qty", 0) for h in holdings}
-            port_val = sum(multi[s] * weights.get(s, 0) for s in syms if s in multi.columns)
-            port_hist = pd.DataFrame({"SNAPSHOT_DATE": multi.index, "TOTAL_VALUE": port_val})
+            # ✅ เพิ่มบรรทัดนี้ — แก้ timezone issue
+            multi.index = pd.to_datetime(multi.index).tz_localize(None)
+            
+            weights  = {h["symbol"]: h.get("qty", 0) for h in holdings}
+            port_val = pd.Series(0.0, index=multi.index)
+            for s in syms:
+                if s in multi.columns and weights.get(s, 0) > 0:
+                    port_val = port_val + multi[s].fillna(0) * weights[s]
+            port_val = port_val[port_val > 0]
+            if not port_val.empty:
+                port_hist = pd.DataFrame({
+                    "SNAPSHOT_DATE": port_val.index,
+                    "TOTAL_VALUE":   port_val.values
+                })
 
     if not port_hist.empty:
         fig = go.Figure()
