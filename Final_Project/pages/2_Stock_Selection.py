@@ -229,9 +229,11 @@ if date_from > date_to:
 
 df_all  = prices[prices["ticker"] == hist_ticker].copy()
 df_all["date"] = pd.to_datetime(df_all["date"]).dt.normalize()
+
+today_utc = pd.Timestamp.now(tz="UTC").normalize().tz_localize(None)
 df_hist = df_all[
     (df_all["date"] >= pd.Timestamp(date_from)) &
-    (df_all["date"] <= pd.Timestamp(date_to))
+    (df_all["date"] <= min(pd.Timestamp(date_to), today_utc - pd.Timedelta(days=1)))
 ].sort_values("date", ascending=False)
 
 if not df_hist.empty:
