@@ -235,8 +235,8 @@ df_hist = df_all[
 ].sort_values("date", ascending=False)
 
 if not df_hist.empty:
-    latest_close  = df_hist["close"].iloc[0]
-    oldest_close  = df_hist["close"].iloc[-1]
+    latest_close  = df_hist["close"].dropna().iloc[0]
+    oldest_close  = df_hist["close"].dropna().iloc[-1]
     period_return = (latest_close / oldest_close - 1) * 100
     avg_volume    = df_hist["volume"].mean()
 
