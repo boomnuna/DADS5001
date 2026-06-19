@@ -182,7 +182,3 @@ App นี้เป็น **เครื่องมือช่วยตัด�
 
 ---
 
-## 👥 Team
-
-DADS5001 — Data Analytics and Data Science  
-Faculty of Information Technology, [University Name]
