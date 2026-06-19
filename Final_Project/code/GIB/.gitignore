@@ -1,7 +1,0 @@
-# venv 
-gib_env/
-
-#python
-__pycache__/
-*.pyc
-*.pyo
