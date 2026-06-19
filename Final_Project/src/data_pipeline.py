@@ -31,6 +31,7 @@ def load_prices(tickers: tuple[str, ...]) -> pd.DataFrame:
             # normalize timezone
             raw.index = raw.index.tz_localize(None) if raw.index.tz is None else raw.index.tz_convert(None)
             df = raw[["Open", "High", "Low", "Close", "Volume"]].copy()
+            df = df.dropna(subset=["Open", "High", "Low", "Close"])
             df.columns = ["open", "high", "low", "close", "volume"]
             df["date"]   = df.index.normalize()
             df["ticker"] = ticker
