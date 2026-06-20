@@ -1,7 +1,7 @@
 # 📈 AI Stock Decision Support System
 
-> **DADS5001 Final Project** — AI-powered stock analysis tool for retail investors  
-> Built with Streamlit, DuckDB, Pandas, MongoDB, Snowflake, and Groq AI
+> **DADS5001 — Final Project**  
+> ระบบช่วยตัดสินใจลงทุนหุ้น ด้วย Technical Analysis + AI
 
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://python.org)
@@ -13,45 +13,43 @@
 
 ## 🎯 Objective
 
-ระบบช่วยสนับสนุนการตัดสินใจลงทุนสำหรับนักลงทุนรายย่อย โดยใช้เครื่องมือด้าน Data Analytics และ Data Science เพื่อ:
+พัฒนา Data Analytics Application ที่ช่วยให้ **นักลงทุนรายย่อย** สามารถวิเคราะห์หุ้นได้อย่างรวดเร็ว โดยรวม Technical Analysis และ AI Sentiment Analysis เข้าด้วยกัน เพื่อสรุปคำแนะนำ **Buy / Hold / Sell** 
 
-- วิเคราะห์หุ้นด้วย Technical Indicators (RSI, MACD, Moving Average)
-- วิเคราะห์ sentiment จากข่าวล่าสุดด้วย AI (Groq Llama 3.3)
-- สรุปคำแนะนำ **Buy / Hold / Sell** พร้อม Confidence Score
-- แสดงภาพรวมตลาดและ sector screening แบบ real-time
+**ปัญหาที่แก้:**
+- ข้อมูลหุ้นกระจัดกระจายอยู่หลายแหล่ง
+- นักลงทุนมือใหม่ไม่รู้วิธีที่จะอ่านค่า index ที่สำคัญยังไง
+- ไม่มีเวลาติดตามข่าวตลาดทุกวัน
 
 ---
 
-## ❗ Issues & Motivation
+## 📋 Requirements
 
-นักลงทุนรายย่อยมักเผชิญปัญหาเหล่านี้:
-
-| ปัญหา | รายละเอียด |
+| Requirement | Implementation |
 |---|---|
-| 📰 ข้อมูลกระจัดกระจาย | ต้องเปิดหลาย website เพื่อดูข่าว ราคา และ indicators |
-| 🤯 วิเคราะห์เองไม่เป็น | ไม่รู้ว่า RSI, MACD หมายความว่าอะไร |
-| ⏰ ไม่มีเวลาติดตาม | ตลาดเปลี่ยนเร็ว กว่าจะรู้ข่าวก็สายไปแล้ว |
-
-App นี้รวมทุกอย่างไว้ในที่เดียว และให้ AI ช่วยสรุปให้อ่านง่าย
+| Multi-page Streamlit App | 4 pages + Main page (app.py + pages/) |
+| DuckDB + Pandas | `data_pipeline.py` — SQL summary บน DataFrame |
+| External Cloud Storage | MongoDB Atlas (User Activity) + Snowflake (Analytics) |
+| Non-AI vs AI Mode | Toggle บน Analysis page — unlock AI tabs เมื่อเปิด |
+| Cache Data / Cache Resource / Session | `@st.cache_data`, `@st.cache_resource`, `st.session_state` |
 
 ---
 
-## 🗺️ App Structure (Multi-page Streamlit)
+## 🗺️ App Structure
 
 ```
-Main.py                  ← Hero page + System Status + Tech Stack
-pages/
-├── 1_Market_Overview.py ← S&P500, Nasdaq, Dow Jones, VIX + YTD Chart
-├── 2_Analysis.py        ← Technical Analysis + AI Analysis + Sector Screening
-├── 3_Stock_Selection.py ← เลือกหุ้น + DuckDB Summary + Price Chart
-└── 4_Dashboard.py       ← Best Picks + Scoreboard + Risk vs Return
-src/
-├── config.py            ← Tickers, Sectors, Palette, Model config
-├── data_pipeline.py     ← yfinance fetch + DuckDB SQL summary
-├── indicators.py        ← RSI, MACD, MA, Bollinger Bands
-├── ml_model.py          ← Random Forest Pattern Recognition
-├── ai_service.py        ← Groq API — Sentiment + Sector Commentary
-└── storage.py           ← MongoDB + Snowflake CRUD
+📦 project/
+├── app.py                    # Main page — Story, Flow, System Status
+├── pages/
+│   ├── 1_Market_Overview.py  # ภาพรวมตลาดโลก, VIX, YTD Chart
+│   ├── 2_Stock_Selection.py  # เลือกหุ้น, Watchlist, Historical Data
+│   ├── 3_Analysis.py         # Non-AI + AI Analysis (toggle)
+│   └── 4_Dashboard.py        # Risk vs Return, Comparison, Sector Screening
+└── src/
+    ├── config.py             # Tickers, Sectors, Palette, Model config
+    ├── data_pipeline.py      # yfinance fetch + DuckDB SQL summary
+    ├── indicators.py         # RSI, MACD, MA, Bollinger Bands
+    ├── ai_service.py         # Groq API — Sentiment + Sector Commentary
+    └── storage.py            # MongoDB + Snowflake CRUD
 ```
 
 ---
@@ -80,147 +78,106 @@ indicators.py  ──→  RSI / MACD / MA / Bollinger Bands
               ┌─────────────────┴─────────────────┐
               ▼                                   ▼
         MongoDB Atlas                         Snowflake
-    (Watchlist, History)         (Indicators, AI Results, Market Snapshots)
+    (Watchlist, History)         (Prices, Indicators, AI Results)
 ```
 
 ---
 
-## 🔧 Solution (Methodology)
+## 📄 Pages
 
-### Non-AI Mode — Technical Analysis
+### 🏠 Main (app.py)
+- Disclaimer 
+- System Status
+- Tech Stack overview
 
-คำแนะนำมาจาก Technical Indicators ล้วนๆ ไม่ใช้ AI:
+### 🌍 1 — Market Overview
+- ดัชนีหลัก: S&P 500, Nasdaq, Dow Jones, VIX
+- YTD Performance Chart 
 
-```
-Tech Score = mean(RSI Score + MACD Score + MA Score)
+### 🎯 2 — Stock Selection
+- เลือกหุ้นที่ต้องการดู
+- Current Price
+- Historical Data 
 
-RSI Score  : RSI 45-65 = 70 / 35-45 หรือ 65-75 = 55 / อื่นๆ = 35
-MACD Score : MACD > Signal line = 70 / MACD < Signal line = 35
-MA Score   : ราคา > MA20 > MA50 = 75 / อื่นๆ = 45
+### 🔬 3 — Analysis (Non-AI + AI Mode)
 
-Buy  : Tech Score ≥ 65
-Hold : Tech Score 45-64
-Sell : Tech Score < 45
-```
+- Technical Score 
 
-### AI Mode — Combined Analysis
+**AI Mode :**
+- 📰 **ข่าวตลาด** — ดึงข่าวจาก SPY/QQQ + AI สรุปข่าว
+- 🤖 **AI Analysis**
+- 🏭 **Sector Screening** — Scan Top 10 หุ้นในอุตสาหกรรมต่างๆ
 
-รวม Technical กับ AI Sentiment จากข่าวล่าสุด:
-
-```
-Combined Score = Technical Score (60%) + AI Sentiment Score (40%)
-
-Buy  : Combined Score ≥ 68
-Hold : Combined Score 45-67
-Sell : Combined Score < 45
-```
-
-AI ใช้ **Groq (Llama 3.3-70B)** วิเคราะห์ข่าวจาก Yahoo Finance แล้วให้ Sentiment Score 0-100
+### 📊 4 — Dashboard
+- Risk vs Return
+- Comparison Bar Chart
+- Summary Decision Table 
 
 ---
 
-## 🛠️ Tech Stack & Requirements
+## ⚙️ Setup
 
-| Tool | หน้าที่ | Requirement |
-|---|---|---|
-| **Streamlit** | Multi-page Web App | ✅ Multi-pages |
-| **DuckDB** | In-memory SQL query บน DataFrame | ✅ DuckDB |
-| **Pandas** | Data manipulation & processing | ✅ Pandas |
-| **MongoDB Atlas** | เก็บ Watchlist, Analysis History | ✅ Cloud Storage |
-| **Snowflake** | เก็บ Technical Metrics, AI Sentiment | ✅ Cloud Storage |
-| **yfinance** | ดึงราคาหุ้นและข่าว Real-time | - |
-| **Groq AI** | LLM วิเคราะห์ sentiment ข่าว | ✅ AI Mode |
-| **Plotly** | Interactive charts | ✅ Visualization |
-
-### Streamlit Caching
-
-```python
-@st.cache_data(ttl=900)      # cache ข้อมูลราคาหุ้น 15 นาที
-@st.cache_resource            # cache MongoDB/Snowflake/Groq connection
-st.session_state              # จำหุ้นที่เลือกและผล AI ข้ามหน้า
-```
-
----
-
-## 📊 Database Design
-
-**MongoDB — SMART_INVEST**
-| Collection | เก็บอะไร |
-|---|---|
-| `watchlists` | หุ้นที่ผู้ใช้เลือกไว้ |
-| `analysis_history` | ประวัติผล AI วิเคราะห์ |
-| `search_history` | ประวัติการค้นหาหุ้น |
-
-**Snowflake — SMART_INVEST.PUBLIC**
-| Table | เก็บอะไร |
-|---|---|
-| `market_snapshots` | ดัชนีตลาดรายวัน (S&P500, Nasdaq, Dow, VIX) |
-| `technical_metrics` | RSI, MA, MACD Score |
-| `ai_sentiment` | Sentiment Score, Combined Score, Recommendation |
-
----
-
-## 🚀 Installation & Setup
-
-### 1. Clone repository
-
+### 1. Clone & Install
 ```bash
 git clone https://github.com/boomnuna/DADS5001.git
 cd DADS5001
-```
-
-### 2. Install dependencies
-
-```bash
 pip install -r requirements.txt
 ```
 
-### 3. Setup secrets
-
+### 2. ตั้งค่า Secrets
 สร้างไฟล์ `.streamlit/secrets.toml`:
 
 ```toml
 GROQ_API_KEY = "your_groq_api_key"
-MONGO_URI    = "your_mongodb_uri"
-MONGO_DB     = "SMART_INVEST"
+
+MONGO_URI = "mongodb+srv://user:password@cluster.mongodb.net/"
+MONGO_DB  = "ai_stock_db"
 
 [snowflake]
 account   = "your_account"
-user      = "your_username"
+user      = "your_user"
 password  = "your_password"
-warehouse = "COMPUTE_WH"
-database  = "SMART_INVEST"
-schema    = "PUBLIC"
+warehouse = "your_warehouse"
+database  = "your_database"
+schema    = "your_schema"
 ```
 
-### 4. Run app
-
+### 3. Run
 ```bash
-streamlit run Main.py
+streamlit run app.py
 ```
+---
+
+## 🗄️ Database Schema
+
+### MongoDB Collections
+| Collection | Fields | ใช้ทำอะไร |
+|---|---|---|
+| `analysis_history` | user_id, tickers, results, analyzed_at | ประวัติการวิเคราะห์ |
+| `search_history` | ประวัติการค้นหาหุ้น |
+| `watchlists` | user_id, tickers, updated_at | เก็บหุ้นที่ user เลือก |
+
+### Snowflake Tables
+| Table | Key Columns | ใช้ทำอะไร |
+|---|---|---|
+| `technical_metrics` | ticker, metric_date, rsi, macd, ma20, ma50, technical_score | Technical Indicators รายวัน |
+| `ai_sentiment` | ticker, sentiment_label, sentiment_score, combined_score | ผล AI วิเคราะห์ |
+| `market_snapshots` | snapshot_date, sp500, nasdaq, vix, chg_pct | ภาพรวมตลาดรายวัน |
 
 ---
 
-## 📦 Requirements
+## 🛠️ Tech Stack
 
-```
-streamlit
-yfinance
-duckdb
-pandas
-numpy
-plotly
-pymongo
-snowflake-connector-python
-groq
-scikit-learn
-```
-
----
-
-## ⚠️ Disclaimer
-
-App นี้เป็น **เครื่องมือช่วยตัดสินใจเพื่อการศึกษา** เท่านั้น  
-ไม่ใช่คำแนะนำทางการเงิน การลงทุนมีความเสี่ยง ผู้ลงทุนควรศึกษาข้อมูลเพิ่มเติมและตัดสินใจด้วยตนเอง
+| Layer | Technology | ใช้ทำอะไร |
+|---|---|---|
+| **UI** | Streamlit (Multi-page) | Web App framework |
+| **Data Source** | yfinance | ดึงราคาหุ้น Real-time จาก Yahoo Finance |
+| **In-memory SQL** | DuckDB | SQL query บน Pandas DataFrame |
+| **Data Processing** | Pandas, NumPy | Manipulation & Technical Indicator |
+| **AI/LLM** | Groq API (Llama 3.3 70B) | Sentiment + ข่าวสรุป + Sector Commentary |
+| **Visualization** | Plotly | Interactive Charts ทุกหน้า |
+| **NoSQL DB** | MongoDB Atlas | Watchlist, Search History, Analysis History |
+| **Cloud DW** | Snowflake | Technical Metrics, AI Sentiment, Market Snapshots |
+| **Caching** | `@st.cache_data` / `@st.cache_resource` | ลด API calls |
 
 ---
