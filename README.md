@@ -149,16 +149,16 @@ streamlit run app.py
 ### MongoDB Collections
 | Collection | Fields | ใช้ทำอะไร |
 |---|---|---|
-| `analysis_history` | user_id, tickers, results, analyzed_at | ประวัติการวิเคราะห์ |
-| `search_history` | ประวัติการค้นหาหุ้น |
-| `watchlists` | user_id, tickers, updated_at | เก็บหุ้นที่ user เลือก |
+| `analysis_history` | ประวัติการวิเคราะห์ |
+| `search_history` | ประวัติการค้นหาหุ้น | 
+| `watchlists` | เก็บหุ้นที่ user เลือก |
 
 ### Snowflake Tables
 | Table | Key Columns | ใช้ทำอะไร |
 |---|---|---|
-| `technical_metrics` | ticker, metric_date, rsi, macd, ma20, ma50, technical_score | Technical Indicators รายวัน |
-| `ai_sentiment` | ticker, sentiment_label, sentiment_score, combined_score | ผล AI วิเคราะห์ |
-| `market_snapshots` | snapshot_date, sp500, nasdaq, vix, chg_pct | ภาพรวมตลาดรายวัน |
+| `technical_metrics` | Technical Indicators รายวัน |
+| `ai_sentiment` | ผล AI วิเคราะห์ |
+| `market_snapshots` | ภาพรวมตลาดรายวัน |
 
 ---
 
