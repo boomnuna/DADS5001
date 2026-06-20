@@ -66,7 +66,7 @@ indicators.py  ──→  RSI / MACD / MA / Bollinger Bands
         │
         ├── [Non-AI Mode] ──→  Technical Score  ──→  Buy / Hold / Sell
         │
-        └── [AI Mode] ──→  Groq Llama 3.3  ──→  Sentiment Score
+        └── [AI Mode]  ──→  Sentiment Score
                                 │
                                 ▼
                     Combined Score (Tech 60% + AI 40%)
