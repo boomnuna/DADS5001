@@ -108,13 +108,13 @@ indicators.py  ──→  RSI / MACD / MA / Bollinger Bands
 - Technical Score 
 
 **AI Mode :**
-- 📰 **ข่าวตลาด** — ดึงข่าวจาก + AI สรุปข่าว
+- 📰 **ข่าวตลาด** — AI ดึงข่าว + สรุปข่าว
 - 🤖 **AI Analysis**
 - 🏭 **Sector Screening** — Scan Top 10 หุ้นในอุตสาหกรรมต่างๆ
 
 ### 📊 4 — Dashboard
 - Risk vs Return
-- Comparison Bar Chart
+- Comparison Chart
 - Summary Decision Table 
 
 ---
