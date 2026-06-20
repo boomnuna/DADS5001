@@ -52,7 +52,7 @@
 │   ├── 3_Analysis.py         # Non-AI + AI Analysis (toggle)
 │   └── 4_Dashboard.py        # Risk vs Return, Comparison, Sector Screening
 └── src/
-    ├── config.py             # Tickers, Sectors, Palette, Model config
+    ├── config.py             # Tickers, Sectors, Palette
     ├── data_pipeline.py      # yfinance fetch + DuckDB SQL summary
     ├── indicators.py         # RSI, MACD, MA, Bollinger Bands
     ├── ai_service.py         # Groq API — Sentiment + Sector Commentary
