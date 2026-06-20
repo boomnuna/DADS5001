@@ -10,6 +10,14 @@
 
 ---
 
+## 🎬 Demo
+
+[![Demo Video](https://img.shields.io/badge/▶_Watch_Demo-Click_Here-FF0000?style=flat&logo=youtube)](YOUR_VIDEO_URL)
+
+> คลิกเพื่อดูวิดีโอการใช้งาน AI Stock Decision Support System
+
+---
+
 ## 🎯 Objective
 
 พัฒนา Data Analytics Application ที่ช่วยให้ **นักลงทุนรายย่อย** สามารถวิเคราะห์หุ้นได้อย่างรวดเร็ว โดยรวม Technical Analysis และ AI Sentiment Analysis เข้าด้วยกัน เพื่อสรุปคำแนะนำ **Buy / Hold / Sell** 
