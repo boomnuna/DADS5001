@@ -156,7 +156,7 @@ streamlit run app.py
 ### Snowflake Tables
 | Table | ใช้ทำอะไร |
 |---|---|
-| `technical_metrics` | Technical Indicators รายวัน |
+| `technical_metrics` | Technical Indicators |
 | `ai_sentiment` | ผล AI วิเคราะห์ |
 | `market_snapshots` | ภาพรวมตลาดรายวัน |
 
