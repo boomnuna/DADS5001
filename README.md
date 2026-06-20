@@ -132,10 +132,10 @@ pip install -r requirements.txt
 สร้างไฟล์ `.streamlit/secrets.toml`:
 
 ```toml
-GROQ_API_KEY = "your_groq_api_key"
+AI_API_KEY = "your_AI_api_key"  # AI API key
 
 MONGO_URI = "mongodb+srv://user:password@cluster.mongodb.net/"
-MONGO_DB  = "ai_stock_db"
+MONGO_DB  = "your_mongodb_database"
 
 [snowflake]
 account   = "your_account"
