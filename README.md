@@ -69,9 +69,6 @@ indicators.py  ──→  RSI / MACD / MA / Bollinger Bands
         └── [AI Mode]  ──→  Sentiment Score
                                 │
                                 ▼
-                    Combined Score (Tech 60% + AI 40%)
-                                │
-                                ▼
                     Investment Recommendation
                                 │
               ┌─────────────────┴─────────────────┐
