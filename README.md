@@ -1,8 +1,5 @@
 # 📈 AI Stock Decision Support System
 
-> **DADS5001 Final Project** — AI-powered stock analysis tool for retail investors  
-> Built with Streamlit, DuckDB, Pandas, MongoDB, Snowflake, and Groq AI
-
 ---
 
 ## 🎯 Objective
@@ -10,8 +7,8 @@
 ระบบช่วยสนับสนุนการตัดสินใจลงทุนสำหรับนักลงทุนรายย่อย โดยใช้เครื่องมือด้าน Data Analytics และ Data Science เพื่อ:
 
 - วิเคราะห์หุ้นด้วย Technical Indicators (RSI, MACD, Moving Average)
-- วิเคราะห์ sentiment จากข่าวล่าสุดด้วย AI (Groq Llama 3.3)
-- สรุปคำแนะนำ **Buy / Hold / Sell** พร้อม Confidence Score
+- วิเคราะห์ sentiment จากข่าวล่าสุดด้วย AI
+- สรุปคำแนะนำ **Buy / Hold / Sell**
 - แสดงภาพรวมตลาดและ sector screening แบบ real-time
 
 ---
@@ -23,7 +20,7 @@
 | ปัญหา | รายละเอียด |
 |---|---|
 | 📰 ข้อมูลกระจัดกระจาย | ต้องเปิดหลาย website เพื่อดูข่าว ราคา และ indicators |
-| 🤯 วิเคราะห์เองไม่เป็น | ไม่รู้ว่า RSI, MACD หมายความว่าอะไร |
+| 🤯 วิเคราะห์เองไม่เป็น | ไม่รู้ว่า index เเต่ละตัวหมายความว่าอะไร เเละควรเลือกดูตัวไหน|
 | ⏰ ไม่มีเวลาติดตาม | ตลาดเปลี่ยนเร็ว กว่าจะรู้ข่าวก็สายไปแล้ว |
 
 App นี้รวมทุกอย่างไว้ในที่เดียว และให้ AI ช่วยสรุปให้อ่านง่าย
@@ -43,11 +40,11 @@ pages/
 
 ---
 
-## 🔧 Solution (Methodology)
+## 🔧 Solution
 
 ### Non-AI Mode — Technical Analysis
 
-คำแนะนำมาจาก Technical Indicators ล้วนๆ ไม่ใช้ AI:
+คำแนะนำมาจาก Technical Indicators :
 
 ```
 Tech Score = mean(RSI Score + MACD Score + MA Score)
@@ -73,7 +70,7 @@ Hold : Combined Score 45-67
 Sell : Combined Score < 45
 ```
 
-AI ใช้ **Groq (Llama 3.3-70B)** วิเคราะห์ข่าวจาก Yahoo Finance แล้วให้ Sentiment Score 0-100
+AI ใช้ วิเคราะห์ข่าวจาก Yahoo Finance แล้วให้ Sentiment Score 0-100
 
 ---
 
@@ -159,21 +156,6 @@ streamlit run Main.py
 
 ---
 
-## 📦 Requirements
-
-```
-streamlit
-yfinance
-duckdb
-pandas
-numpy
-plotly
-pymongo
-snowflake-connector-python
-groq
-```
-
----
 
 ## ⚠️ Disclaimer
 
