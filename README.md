@@ -165,7 +165,7 @@ streamlit run app.py
 | Table | ใช้ทำอะไร |
 |---|---|
 | `technical_metrics` | Technical Indicators |
-| `ai_sentiment` | ผล AI วิเคราะห์ |
+| `ai_sentiment` | ผลที่ AI วิเคราะห์ |
 | `market_snapshots` | ภาพรวมตลาดรายวัน |
 
 ---
