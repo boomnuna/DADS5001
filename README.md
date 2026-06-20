@@ -1,7 +1,7 @@
 # 📈 AI Stock Decision Support System
 
 > **DADS5001 — Final Project**  
-> ระบบช่วยตัดสินใจลงทุนหุ้น ด้วย Technical Analysis + AI (Groq Llama 3.3)
+> ระบบช่วยตัดสินใจลงทุนหุ้น ด้วย Technical Analysis + AI
 
 [![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io)
 [![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat&logo=python&logoColor=white)](https://python.org)
@@ -17,7 +17,7 @@
 
 **ปัญหาที่แก้:**
 - ข้อมูลหุ้นกระจัดกระจายอยู่หลายแหล่ง
-- นักลงทุนทั่วไปไม่รู้จะอ่าน RSI, MACD ยังไง
+- นักลงทุนทั่วไปไม่รู้วิธีอ่านค่า index ที่สำคัญยังไง
 - ไม่มีเวลาติดตามข่าวตลาดทุกวัน
 
 ---
