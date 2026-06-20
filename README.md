@@ -148,14 +148,14 @@ streamlit run app.py
 
 ### MongoDB Collections
 | Collection | ใช้ทำอะไร |
-|---|---|---|
+|---|---|
 | `analysis_history` | ประวัติการวิเคราะห์ |
 | `search_history` | ประวัติการค้นหาหุ้น | 
 | `watchlists` | เก็บหุ้นที่ user เลือก |
 
 ### Snowflake Tables
-| Table | Key Columns | ใช้ทำอะไร |
-|---|---|---|
+| Table | ใช้ทำอะไร |
+|---|---|
 | `technical_metrics` | Technical Indicators รายวัน |
 | `ai_sentiment` | ผล AI วิเคราะห์ |
 | `market_snapshots` | ภาพรวมตลาดรายวัน |
