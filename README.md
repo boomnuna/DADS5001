@@ -155,7 +155,6 @@ Momentum Score = Return_1M / 20 × 40 + Technical Score / 100 × 60
 | **Data Source** | yfinance | ดึงราคาหุ้น Real-time จาก Yahoo Finance |
 | **In-memory SQL** | DuckDB | SQL query บน Pandas DataFrame |
 | **Data Processing** | Pandas, NumPy | Manipulation & Technical Indicator |
-| **ML** | scikit-learn (Random Forest) | Pattern Recognition Score |
 | **AI/LLM** | Groq API (Llama 3.3 70B) | Sentiment + ข่าวสรุป + Sector Commentary |
 | **Visualization** | Plotly | Interactive Charts ทุกหน้า |
 | **NoSQL DB** | MongoDB Atlas | Watchlist, Search History, Analysis History |
