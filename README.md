@@ -147,7 +147,7 @@ streamlit run app.py
 ## 🗄️ Database Schema
 
 ### MongoDB Collections
-| Collection | Fields | ใช้ทำอะไร |
+| Collection | ใช้ทำอะไร |
 |---|---|---|
 | `analysis_history` | ประวัติการวิเคราะห์ |
 | `search_history` | ประวัติการค้นหาหุ้น | 
