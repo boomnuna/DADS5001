@@ -100,7 +100,7 @@ indicators.py  ──→  RSI / MACD / MA / Bollinger Bands
 - Technical Score 
 
 **AI Mode :**
-- 📰 **ข่าวตลาด** — ดึงข่าวจาก SPY/QQQ + AI สรุปข่าว
+- 📰 **ข่าวตลาด** — ดึงข่าวจาก + AI สรุปข่าว
 - 🤖 **AI Analysis**
 - 🏭 **Sector Screening** — Scan Top 10 หุ้นในอุตสาหกรรมต่างๆ
 
