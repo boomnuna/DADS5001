@@ -55,7 +55,7 @@
     ├── config.py             # Tickers, Sectors, Palette
     ├── data_pipeline.py      # yfinance fetch + DuckDB SQL summary
     ├── indicators.py         # RSI, MACD, MA, Bollinger Bands
-    ├── ai_service.py         # Groq API — Sentiment + Sector Commentary
+    ├── ai_service.py         # Sentiment + Sector Commentary
     └── storage.py            # MongoDB + Snowflake CRUD
 ```
 
