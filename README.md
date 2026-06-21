@@ -16,7 +16,7 @@
 [![Demo Video](https://img.shields.io/badge/▶_Watch_Demo-Click_Here-FF0000?style=flat&logo=youtube)](YOUR_VIDEO_URL)
 
 > 🚀 **[คลิกเพื่อเปิดใช้งาน App](https://dads5001-smart-invest.streamlit.app/)**  
-> 🎬 **[คลิกเพื่อดูวิดีโอการใช้งาน](YOUR_VIDEO_URL)**
+> 🎬 **[คลิกเพื่อดูวิดีโอการใช้งาน](https://www.youtube.com/watch?v=RYyof5oTjyM)**
 
 ---
 
