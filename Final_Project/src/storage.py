@@ -1,7 +1,7 @@
 """
 src/storage.py
 MongoDB — เก็บ Watchlist, Search History
-Snowflake — เก็บ Price, Indicators, Predictions, AI Sentiment
+Snowflake — เก็บ Indicators, AI Sentiment, Market Snapshots
 """
 
 from __future__ import annotations
@@ -41,7 +41,6 @@ def _get_mongo_db():
 
 
 def save_watchlist(tickers: list[str]) -> str:
-    """บันทึก watchlist + search history ลง MongoDB"""
     db = _get_mongo_db()
     if db is None:
         return "⚠️ Demo mode: MongoDB ไม่ได้เชื่อมต่อ"
@@ -51,12 +50,15 @@ def save_watchlist(tickers: list[str]) -> str:
         {"$set": {"tickers": tickers, "updated_at": now}},
         upsert=True,
     )
-
+    db.search_history.insert_one({
+        "user_id":     USER_ID,
+        "tickers":     tickers,
+        "searched_at": now,
+    })
     return f"✅ บันทึก Watchlist {tickers} ลง MongoDB แล้ว"
 
 
 def load_watchlist() -> list[str]:
-    """โหลด watchlist จาก MongoDB"""
     db = _get_mongo_db()
     if db is None:
         return []
@@ -65,7 +67,6 @@ def load_watchlist() -> list[str]:
 
 
 def load_search_history(limit: int = 10) -> list[dict]:
-    """โหลดประวัติการค้นหา"""
     db = _get_mongo_db()
     if db is None:
         return []
@@ -78,7 +79,7 @@ def load_search_history(limit: int = 10) -> list[dict]:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# Snowflake
+# Snowflake — Auto-reconnect
 # ════════════════════════════════════════════════════════════════════════════
 
 @st.cache_resource
@@ -100,8 +101,39 @@ def get_snowflake_conn():
         return None
 
 
-def _sf_execute(sql: str, params: list | None = None) -> bool:
+def _new_sf_conn():
+    """สร้าง Snowflake connection ใหม่โดยไม่ใช้ cache"""
+    try:
+        import snowflake.connector
+        sf = st.secrets["snowflake"]
+        return snowflake.connector.connect(
+            account   = sf["account"],
+            user      = sf["user"],
+            password  = sf["password"],
+            warehouse = sf["warehouse"],
+            database  = sf["database"],
+            schema    = sf["schema"],
+        )
+    except Exception:
+        return None
+
+
+def _get_sf_conn():
+    """ดึง connection พร้อม auto-reconnect ถ้า token หมดอายุ"""
     conn = get_snowflake_conn()
+    if conn is None:
+        return None
+    try:
+        conn.cursor().execute("SELECT 1")
+        return conn
+    except Exception:
+        # token หมดอายุ — clear cache แล้ว reconnect ใหม่
+        get_snowflake_conn.clear()
+        return _new_sf_conn()
+
+
+def _sf_execute(sql: str, params: list | None = None) -> bool:
+    conn = _get_sf_conn()
     if conn is None:
         return False
     try:
@@ -116,7 +148,7 @@ def _sf_execute(sql: str, params: list | None = None) -> bool:
 
 
 def _sf_query(sql: str, params: list | None = None) -> pd.DataFrame:
-    conn = get_snowflake_conn()
+    conn = _get_sf_conn()
     if conn is None:
         return pd.DataFrame()
     try:
@@ -131,8 +163,6 @@ def _sf_query(sql: str, params: list | None = None) -> pd.DataFrame:
 
 
 def setup_snowflake_tables() -> None:
-    """สร้างตารางใน Snowflake ถ้ายังไม่มี"""
-
     _sf_execute("""
         CREATE TABLE IF NOT EXISTS technical_metrics (
             id               STRING DEFAULT UUID_STRING(),
@@ -150,7 +180,6 @@ def setup_snowflake_tables() -> None:
             saved_at         TIMESTAMP_NTZ DEFAULT CURRENT_TIMESTAMP()
         )
     """)
-
     _sf_execute("""
         CREATE TABLE IF NOT EXISTS ai_sentiment (
             id               STRING DEFAULT UUID_STRING(),
@@ -166,20 +195,15 @@ def setup_snowflake_tables() -> None:
     """)
 
 
-
-
-
 def save_analysis_to_snowflake(
     technical: pd.DataFrame,
     ai_result: pd.DataFrame,
 ) -> bool:
-    """บันทึกผลวิเคราะห์ลง Snowflake (Technical + AI Sentiment)"""
-    conn = get_snowflake_conn()
+    conn = _get_sf_conn()
     if conn is None:
         return False
     try:
         cur = conn.cursor()
-        # Technical
         for _, row in technical.iterrows():
             cur.execute("""
                 INSERT INTO technical_metrics
@@ -190,7 +214,6 @@ def save_analysis_to_snowflake(
                 row.get("rsi"), row.get("macd_score"), row.get("bb_upper"),
                 row.get("bb_lower"), row.get("technical_score"), row.get("technical_signal"),
             ])
-        # AI Sentiment
         if not ai_result.empty:
             for _, row in ai_result.iterrows():
                 cur.execute("""
@@ -209,16 +232,13 @@ def save_analysis_to_snowflake(
         return False
 
 
-
-
-
 def mongo_status() -> str:
     client = get_mongo_client()
     return "✅ MongoDB เชื่อมต่อแล้ว" if client else "⚠️ MongoDB ไม่ได้เชื่อมต่อ"
 
 
 def snowflake_status() -> str:
-    conn = get_snowflake_conn()
+    conn = _get_sf_conn()
     return "✅ Snowflake เชื่อมต่อแล้ว" if conn else "⚠️ Snowflake ไม่ได้เชื่อมต่อ"
 
 
@@ -227,7 +247,6 @@ def snowflake_status() -> str:
 # ════════════════════════════════════════════════════════════════════════════
 
 def save_analysis_history(tickers: list[str], results: list[dict]) -> str:
-    """บันทึกประวัติการวิเคราะห์ลง MongoDB"""
     db = _get_mongo_db()
     if db is None:
         return "⚠️ MongoDB ไม่ได้เชื่อมต่อ"
@@ -242,7 +261,6 @@ def save_analysis_history(tickers: list[str], results: list[dict]) -> str:
 
 
 def load_analysis_history(limit: int = 5) -> list[dict]:
-    """โหลดประวัติการวิเคราะห์ล่าสุด"""
     db = _get_mongo_db()
     if db is None:
         return []
@@ -255,8 +273,7 @@ def load_analysis_history(limit: int = 5) -> list[dict]:
 
 
 def save_market_snapshot(index_data: dict) -> bool:
-    """บันทึก Market Overview snapshot รายวันลง Snowflake"""
-    conn = get_snowflake_conn()
+    conn = _get_sf_conn()
     if conn is None:
         return False
     try:
