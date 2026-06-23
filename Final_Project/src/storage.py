@@ -79,30 +79,11 @@ def load_search_history(limit: int = 10) -> list[dict]:
 
 
 # ════════════════════════════════════════════════════════════════════════════
-# Snowflake — Auto-reconnect
+# Snowflake — Auto-reconnect via session_state
 # ════════════════════════════════════════════════════════════════════════════
 
-@st.cache_resource
-def get_snowflake_conn():
-    try:
-        import snowflake.connector
-        sf = st.secrets["snowflake"]
-        conn = snowflake.connector.connect(
-            account   = sf["account"],
-            user      = sf["user"],
-            password  = sf["password"],
-            warehouse = sf["warehouse"],
-            database  = sf["database"],
-            schema    = sf["schema"],
-        )
-        return conn
-    except Exception as e:
-        st.warning(f"Snowflake: {e}")
-        return None
-
-
 def _new_sf_conn():
-    """สร้าง Snowflake connection ใหม่โดยไม่ใช้ cache"""
+    """สร้าง Snowflake connection ใหม่"""
     try:
         import snowflake.connector
         sf = st.secrets["snowflake"]
@@ -114,22 +95,45 @@ def _new_sf_conn():
             database  = sf["database"],
             schema    = sf["schema"],
         )
-    except Exception:
+    except Exception as e:
+        st.warning(f"Snowflake connect error: {e}")
         return None
 
 
 def _get_sf_conn():
-    """ดึง connection พร้อม auto-reconnect ถ้า token หมดอายุ"""
-    conn = get_snowflake_conn()
+    """
+    ดึง Snowflake connection พร้อม auto-reconnect
+    เก็บใน session_state แทน cache_resource เพื่อให้ clear แล้ว reconnect ได้ทันที
+    """
+    conn = st.session_state.get("_sf_conn")
+
+    # ยังไม่มี connection → สร้างใหม่
     if conn is None:
-        return None
+        conn = _new_sf_conn()
+        st.session_state["_sf_conn"] = conn
+        return conn
+
+    # ทดสอบว่า token ยังใช้ได้ไหม
     try:
         conn.cursor().execute("SELECT 1")
         return conn
-    except Exception:
-        # token หมดอายุ — clear cache แล้ว reconnect ใหม่
-        get_snowflake_conn.clear()
-        return _new_sf_conn()
+    except Exception as e:
+        err = str(e)
+        if "390114" in err or "Authentication token" in err or "08001" in err:
+            # Token หมดอายุ → ปิด connection เก่า แล้ว reconnect
+            try:
+                conn.close()
+            except Exception:
+                pass
+            new_conn = _new_sf_conn()
+            st.session_state["_sf_conn"] = new_conn
+            return new_conn
+        return None
+
+
+# alias สำหรับ backward compatibility (app.py เรียก snowflake_status ผ่าน _get_sf_conn อยู่แล้ว)
+def get_snowflake_conn():
+    return _get_sf_conn()
 
 
 def _sf_execute(sql: str, params: list | None = None) -> bool:
